@@ -4,11 +4,11 @@ import com.ahmad.resourcehub.dto.error.ApiErrorDTO;
 import com.ahmad.resourcehub.dto.error.FieldErrorDTO;
 import com.ahmad.resourcehub.exception.ApplicationException;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,11 +31,10 @@ public class GlobalExceptionHandler {
 
     //Base application exception handler.
     @ExceptionHandler(ApplicationException.class)
-    @Order(1)
     public ResponseEntity<ApiErrorDTO> handleApplicationException(ApplicationException ex, HttpServletRequest request) {
 
         String traceId = generateTraceId();
-        log.warn("Application exception [traceId={}]: {} - {}", traceId, ex.getErrorCode(), ex.getMessage());
+        log.warn("Application exception [traceId={}]: {} - {}\n Trace: {}", traceId, ex.getErrorCode(), ex.getMessage(), ex.getStackTrace());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(ex.getHttpStatus())
                 .detail(ex.getMessage())
@@ -47,12 +46,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getHttpStatus()).body(error);
     }
 
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorDTO> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex) {
 
         String traceId = generateTraceId();
-
+        log.warn("MethodArgument Mismatch violation [traceId={}]: {}\n Trace: {}", traceId, ex.getMessage(), ex.getStackTrace());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(HttpStatus.BAD_REQUEST)
                 .errorCode("INVALID_REQUEST_PARAMETER")
@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
                 constraintViolation.getInvalidValue(),
                 constraintViolation.getMessage()
         )).toList();
-        log.warn("Constraint violation [traceId={}]: {}", traceId, ex.getMessage());
+        log.warn("Constraint violation [traceId={}]: {}\n Trace: {}", traceId, ex.getMessage(), ex.getStackTrace());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(HttpStatus.BAD_REQUEST)
                 .detail("Constraint validation failed. Check field errors for details.")
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiErrorDTO> handleAuthException(AuthenticationException ex, HttpServletRequest request) {
         String traceId = generateTraceId();
-        log.warn("Authentication failed [traceId={}]: {}", traceId, ex.getMessage());
+        log.warn("Authentication failed [traceId={}]: {}\n Trace: {}", traceId, ex.getMessage(), ex.getStackTrace());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(HttpStatus.UNAUTHORIZED)
                 .detail("Invalid username or password")
@@ -118,7 +118,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorDTO> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
         String traceId = generateTraceId();
-        log.warn("Access denied [traceId={}]: {}", traceId, ex.getMessage());
+        log.warn("Access denied [traceId={}]: {}\n Trace: {}", traceId, ex.getMessage(), ex.getStackTrace());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(HttpStatus.FORBIDDEN)
                 .detail("Access denied to this resource")
@@ -132,7 +132,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ApiErrorDTO> handleJWTExpired(ExpiredJwtException ex) {
         String traceId = generateTraceId();
-        log.warn("JWT expired [traceId={}]: {}", traceId, ex.getMessage());
+        log.warn("JWT expired [traceId={}]: {} \n Trace: {}", traceId, ex.getMessage(), ex.getStackTrace());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(HttpStatus.FORBIDDEN)
                 .detail("JWT token provided is expired.")
@@ -142,11 +142,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ApiErrorDTO> handleMalformedJWT(MalformedJwtException ex) {
+        String traceId = generateTraceId();
+        log.warn("JWT malformed [traceId={}]: {} \n Trace: {}", traceId, ex.getMessage(), ex.getStackTrace());
+        ApiErrorDTO error = ApiErrorDTO.builder()
+                .status(HttpStatus.FORBIDDEN)
+                .detail("JWT token provided is malformed.")
+                .errorCode("JWT_TOKEN_ILLEGAL")
+                .traceId(traceId)
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
     //All other exceptions handling
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> handleAllUncaughtException(Exception ex, HttpServletRequest request) {
         String traceId = generateTraceId();
-        log.warn("Unexpected error [traceId={}]: {}", traceId, ex.getMessage());
+        log.warn("Unexpected error [traceId={}]: {} \n Trace: {} \n ErrorClass: {}", traceId, ex.getMessage(), ex.getStackTrace(), ex.getClass().getName());
         ApiErrorDTO error = ApiErrorDTO.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .detail("Unexpected internal error")

@@ -111,6 +111,15 @@ public class ResourceService {
         return resourceRepository.save(folder);
     }
 
+    public Resource createSuperFolder(SuperFolderRequest request) {
+        Resource folder = Resource.builder()
+                .name(request.getName())
+                .type(Resource.ResourceType.FOLDER)
+                .parentUuid(null)
+                .build();
+        return resourceRepository.save(folder);
+    }
+
     public void deleteResource(UUID uuid) {
         Resource resource = resourceRepository.findByUuid(uuid).orElseThrow(() -> new ResourceNotFoundException("item", uuid.toString()));
         log.info("Deleting item {} with name {}", uuid, resource.getName());
@@ -146,15 +155,12 @@ public class ResourceService {
             throw new BusinessValidationException("Parent folder is read-only", "READ_ONLY_PARENT");
 
         Resource resource = Resource.builder()
-                .uuid(UUID.randomUUID())
                 .name(fileUploadDTO.getName())
                 .type(Resource.ResourceType.FILE)
                 .parentUuid(fileUploadDTO.getParentUUID())
                 .build();
-
+        resource = resourceRepository.save(resource);
         String url = fileStorageService.storeFile(file, resource.getUuid().toString());
-        if (url == null)
-            throw new BadRequestException("ILLEGAL_FILE_NAME");
         log.info("File with uuid {} has file path {}.", resource.getUuid(), url);
         FileMetadata fileMetadata = FileMetadata.builder()
                 .uuid(resource.getUuid())
@@ -168,8 +174,6 @@ public class ResourceService {
                 .build();
 
         fileMetadataRepository.save(fileMetadata);
-        resourceRepository.save(resource);
-
         return FileDTO.from(resource, fileMetadata);
     }
 

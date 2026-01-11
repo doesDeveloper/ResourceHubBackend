@@ -54,6 +54,12 @@ public class ResourceController {
         return ResponseEntity.ok(ResourceDto.from(saved));
     }
 
+    @PostMapping("/create/folders/super")
+    public ResponseEntity<ResourceDto> createSuperFolder(@RequestBody @Valid SuperFolderRequest request) {
+        Resource saved = resourceService.createSuperFolder(request);
+        return ResponseEntity.ok(ResourceDto.from(saved));
+    }
+
     @DeleteMapping("/delete/{uuid}")
     public ResponseEntity<?> deleteResource(@PathVariable UUID uuid) {
         resourceService.deleteResource(uuid);

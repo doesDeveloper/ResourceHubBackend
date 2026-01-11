@@ -32,12 +32,11 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public User register(UserRegisterDTO userRegisterDTO) {
+    public User registerUser(UserRegisterDTO userRegisterDTO) {
         if (findByUsername(userRegisterDTO.getUsername()) != null)
             throw new ConflictException("User", "username", userRegisterDTO.getUsername());
         userRegisterDTO.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
-        User user;
-        user = User.builder()
+        User user = User.builder()
                 .username(userRegisterDTO.getUsername())
                 .password(userRegisterDTO.getPassword())
                 .email(userRegisterDTO.getEmail())
@@ -48,10 +47,6 @@ public class UserService implements UserDetailsService {
     }
 
     public User findByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            throw new RuntimeException("User not found with username: " + username);
-        }
-        return user;
+        return userRepository.findByUsername(username).orElse(null);
     }
 }

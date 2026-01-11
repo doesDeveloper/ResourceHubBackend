@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -24,12 +25,15 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
     private final UserService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationEntryPoint authEntryPoint;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .securityMatcher("/api/**").authorizeHttpRequests(rmr -> rmr
+                .securityMatcher("/api/**")
+                .authorizeHttpRequests(rmr -> rmr
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/resources/create/folders").hasRole("ADMIN")
@@ -42,6 +46,9 @@ public class SecurityConfig {
                         .authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception -> {
+                    exception.authenticationEntryPoint(authEntryPoint);
+                })
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
