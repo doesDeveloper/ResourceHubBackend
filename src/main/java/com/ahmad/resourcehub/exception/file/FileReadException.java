@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class FileReadException extends ApplicationException {
     public FileReadException(String message) {
-        super(message, "FILE_READ_FAILED", HttpStatus.INTERNAL_SERVER_ERROR);
+        super(message, "FILE_READ_FAILED", HttpStatus.NOT_FOUND);
     }
 }

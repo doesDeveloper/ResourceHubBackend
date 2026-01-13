@@ -18,6 +18,4 @@ public class FolderDTO {
     private String name;
     private Boolean readOnly;
     private List<ResourceDto> children;
-
-
 }
