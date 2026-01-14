@@ -20,19 +20,11 @@ import java.util.Objects;
 
 @Service
 public class FileStorageService {
-    private final Path uploadDir;
     private final Cloudinary cloudinary;
 
     public FileStorageService(
-            @Value("${file.upload-dir}") String uploadDir,
             @Value("${cloudinary.url}") String cloudinaryUrl
     ) {
-        this.uploadDir = Path.of(uploadDir).toAbsolutePath().normalize();
-        try {
-            Files.createDirectories(this.uploadDir);
-        } catch (IOException e) {
-            throw new FileWriteException(e.getMessage(), "DIRECTORY_WRITE_FAILED");
-        }
         this.cloudinary = new Cloudinary(cloudinaryUrl);
     }
 
