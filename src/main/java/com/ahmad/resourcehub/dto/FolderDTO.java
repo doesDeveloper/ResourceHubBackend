@@ -14,8 +14,8 @@ import java.util.UUID;
 @Builder
 public class FolderDTO {
     private UUID uuid;
-    private Resource.ResourceType type; // FOLDER or FILE
+    private Resource.ResourceType type; // FOLDER Always
     private String name;
-    private Boolean readOnly;
+//    private Boolean readOnly;
     private List<ResourceDto> children;
 }

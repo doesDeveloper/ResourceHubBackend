@@ -18,7 +18,7 @@ public class ResourceDto {
     private ResourceType type; // FOLDER or FILE
     private String name;
 //    private Boolean readOnly;
-    private LocalDateTime createdAt;
+//    private LocalDateTime createdAt;
 
     public static ResourceDto from(Resource resource) {
         return ResourceDto.builder()
@@ -26,7 +26,7 @@ public class ResourceDto {
                 .type(resource.getType())
                 .name(resource.getName())
 //                .readOnly(resource.getReadOnly())
-                .createdAt(resource.getCreatedAt())
+//                .createdAt(resource.getCreatedAt())
                 .build();
     }
 }

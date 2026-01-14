@@ -59,7 +59,7 @@ public class ResourceService {
                 .uuid(resource.getUuid())
                 .type(resource.getType())
                 .name(resource.getName())
-                .readOnly(resource.getReadOnly())
+//                .readOnly(resource.getReadOnly())
                 .children(resourceDtos)
                 .build();
     }
@@ -123,12 +123,14 @@ public class ResourceService {
     public void deleteResource(UUID uuid) {
         Resource resource = resourceRepository.findByUuid(uuid).orElseThrow(() -> new ResourceNotFoundException("item", uuid.toString()));
         log.info("Deleting item {} with name {}", uuid, resource.getName());
-        if (resource.getType() == Resource.ResourceType.FOLDER) {
-            List<Resource> childResources = resourceRepository.findByParentUuid(uuid);
-            childResources.forEach(child -> deleteResource(child.getUuid()));
-        } else {
-            deleteFileMeta(resource);
-        }
+//        if (resource.getType() == Resource.ResourceType.FOLDER) {
+//            List<Resource> childResources = resourceRepository.findByParentUuid(uuid);
+//            childResources.forEach(child -> deleteResource(child.getUuid()));
+//        } else {
+//            deleteFileMeta(resource);
+//            Now handled my SQL
+//        }
+//        Parent id now foreign key hence, auto delete children.
         resourceRepository.delete(resource);
     }
 
@@ -136,10 +138,10 @@ public class ResourceService {
     public FileDTO createFile(MultipartFile file, FileUploadDTO fileUploadDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!isAuthenticated(auth)) throw new ForbiddenException("creation", "file");
-        final int maxSize = 14680064; // 14 * 1024 * 1024
+        final int maxSize = 10485760; // 10 * 1024 * 1024
         log.info("File size: {}", file.getSize());
         if (file.getSize() > maxSize)
-            throw new BusinessValidationException("File size must be less than 14MB", "FILE_SIZE_EXCEEDED");
+            throw new BusinessValidationException("File size must be less than 10MB", "FILE_SIZE_EXCEEDED");
 
         //PDF file only
         if (file.getContentType() != null && !file.getContentType().startsWith("application/pdf"))

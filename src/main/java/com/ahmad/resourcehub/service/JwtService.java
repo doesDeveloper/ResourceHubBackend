@@ -4,6 +4,7 @@ import com.ahmad.resourcehub.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -14,7 +15,11 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final Key SECRET_KEY = Keys.hmacShaKeyFor("can-I-make-this-custom?-this-is-first-project-let-me-try".getBytes());
+    private final Key SECRET_KEY;
+
+    public JwtService(@Value("${jwt.secret}") String SECRET_KEY) {
+        this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    }
 
     // Token creation
     private String createToken(String subject, Map<String, Object> claims) {

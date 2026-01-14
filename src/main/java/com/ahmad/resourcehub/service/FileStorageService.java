@@ -3,6 +3,8 @@ package com.ahmad.resourcehub.service;
 import com.ahmad.resourcehub.exception.ForbiddenException;
 import com.ahmad.resourcehub.exception.file.FileReadException;
 import com.ahmad.resourcehub.exception.file.FileWriteException;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -13,21 +15,25 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
 public class FileStorageService {
     private final Path uploadDir;
+    private final Cloudinary cloudinary;
 
-    public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
+    public FileStorageService(
+            @Value("${file.upload-dir}") String uploadDir,
+            @Value("${cloudinary.url}") String cloudinaryUrl
+    ) {
         this.uploadDir = Path.of(uploadDir).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.uploadDir);
         } catch (IOException e) {
             throw new FileWriteException(e.getMessage(), "DIRECTORY_WRITE_FAILED");
         }
+        this.cloudinary = new Cloudinary(cloudinaryUrl);
     }
 
 
@@ -35,12 +41,20 @@ public class FileStorageService {
         try {
             String extension = getExtension(Objects.requireNonNull(file.getOriginalFilename()));
             filename = filename.concat(extension);
-            Path targetLocation = this.uploadDir.resolve(filename).normalize();
-            if (!targetLocation.getParent().equals(uploadDir)) {
-                return null;
-            }
-            Files.copy(file.getInputStream(), targetLocation, REPLACE_EXISTING);
-            return "/uploads/" + filename;
+//            Path targetLocation = this.uploadDir.resolve(filename).normalize();
+//            if (!targetLocation.getParent().equals(uploadDir)) {
+//                return null;
+//            }
+//            Files.copy(file.getInputStream(), targetLocation, REPLACE_EXISTING);
+            Map params = ObjectUtils.asMap(
+                    "resource_type", "raw",
+                    "use_filename", true,
+                    "unique_filename", true,
+                    "public_id", filename);
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
+            System.out.println(uploadResult);
+//            return "/uploads/" + filename;
+            return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
             throw new FileWriteException(e.getMessage(), "FILE_WRITE_FAILED");
         }

@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
                 .instance(request.getRequestURI())
                 .traceId(traceId)
                 .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
