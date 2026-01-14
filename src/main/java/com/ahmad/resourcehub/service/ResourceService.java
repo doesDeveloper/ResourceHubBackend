@@ -186,7 +186,7 @@ public class ResourceService {
                         // get filename from path /uploads/{filename}
                         String filename = metadata.getFilePath()
                                 .substring(metadata.getFilePath().lastIndexOf("/") + 1);
-                        fileStorageService.deleteFile(filename);
+//                        fileStorageService.deleteFile(filename);
                         fileMetadataRepository.delete(metadata);
                     }
             );

@@ -56,45 +56,45 @@ public class FileStorageService {
         return storeFile(file, file.getOriginalFilename());
     }
 
-    public boolean deleteFile(String filename) {
-        try {
-            Path targetLocation = this.uploadDir.resolve(filename).normalize();
-            if (targetLocation.toFile().exists())
-                return Files.deleteIfExists(targetLocation);
-            return false;
-        } catch (IOException e) {
-            throw new FileWriteException(e.getMessage(), "FILE_DELETE_FAILED");
-        }
-    }
-
-    public Resource loadAsResource(String filename) {
-        try {
-            Path file = this.uploadDir.resolve(filename).normalize();
-            if (!file.getParent().equals(uploadDir)) {
-                throw new ForbiddenException("access", filename);
-            }
-            Resource resource = new UrlResource(file.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new FileReadException(String.format("File %s may not exist.", filename));
-            }
-        } catch (MalformedURLException e) {
-            throw new FileReadException(e.getMessage());
-        }
-    }
-
-    public String getContentType(String filename) {
-        try {
-            String contentType = Files.probeContentType(this.uploadDir.resolve(filename).normalize());
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
-            return contentType;
-        } catch (IOException e) {
-            throw new FileReadException(e.getMessage());
-        }
-    }
+//    public boolean deleteFile(String filename) {
+//        try {
+//            Path targetLocation = this.uploadDir.resolve(filename).normalize();
+//            if (targetLocation.toFile().exists())
+//                return Files.deleteIfExists(targetLocation);
+//            return false;
+//        } catch (IOException e) {
+//            throw new FileWriteException(e.getMessage(), "FILE_DELETE_FAILED");
+//        }
+//    }
+//
+//    public Resource loadAsResource(String filename) {
+//        try {
+//            Path file = this.uploadDir.resolve(filename).normalize();
+//            if (!file.getParent().equals(uploadDir)) {
+//                throw new ForbiddenException("access", filename);
+//            }
+//            Resource resource = new UrlResource(file.toUri());
+//            if (resource.exists() || resource.isReadable()) {
+//                return resource;
+//            } else {
+//                throw new FileReadException(String.format("File %s may not exist.", filename));
+//            }
+//        } catch (MalformedURLException e) {
+//            throw new FileReadException(e.getMessage());
+//        }
+//    }
+//
+//    public String getContentType(String filename) {
+//        try {
+//            String contentType = Files.probeContentType(this.uploadDir.resolve(filename).normalize());
+//            if (contentType == null) {
+//                contentType = "application/octet-stream";
+//            }
+//            return contentType;
+//        } catch (IOException e) {
+//            throw new FileReadException(e.getMessage());
+//        }
+//    }
 
     // Get Extension
     public String getExtension(String filename) {
