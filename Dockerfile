@@ -1,21 +1,25 @@
-# Use Eclipse Temurin JDK 21 base image
-FROM eclipse-temurin:21-jdk-alpine
-# Set working directory in container
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 
-# Copy Gradle wrapper & build files
-COPY . .
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
 
-# Make sure wrapper is executable
 RUN chmod +x ./gradlew
 
-# Build Spring Boot app using Gradle wrapper
-RUN ./gradlew bootJar
+RUN ./gradlew dependencies --no-daemon
 
-# Expose app port (Render sets $PORT env var)
-EXPOSE 8080
+COPY src src
+RUN ./gradlew bootJar --no-daemon -x test
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
 
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
-# Run the built JAR, using the $PORT provided by Render
-CMD ["sh", "-c", "java -Dserver.port=$PORT -jar build/libs/*.jar"]
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 8080
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar app.jar"]
