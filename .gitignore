@@ -16,6 +16,7 @@ pdf_uploads/
 .sts4-cache
 .env
 run.bat
+Dockerfile.dev
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/

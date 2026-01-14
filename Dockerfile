@@ -1,15 +1,21 @@
-# Get lightweight jdk just for building we use our own host gradle
+# Use Eclipse Temurin JDK 21 base image
 FROM eclipse-temurin:21-jdk-alpine
-
-# Create a user for security reason
 RUN addgroup -S spring && adduser -S spring -G spring
-
 USER spring:spring
-
+# Set working directory in container
 WORKDIR /app
 
-ARG JAR_FILE=build/libs/*SNAPSHOT.jar
-COPY ${JAR_FILE} app.jar
+# Copy Gradle wrapper & build files
+COPY . .
 
+# Make sure wrapper is executable
+RUN chmod +x ./gradlew
+
+# Build Spring Boot app using Gradle wrapper
+RUN ./gradlew bootJar
+
+# Expose app port (Render sets $PORT env var)
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
+# Run the built JAR, using the $PORT provided by Render
+CMD ["sh", "-c", "java -Dserver.port=$PORT -jar build/libs/*.jar"]
