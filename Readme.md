@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://springdoc.org)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)](https://spring.io/projects/spring-boot)
 
-ResourceHub API is a backend application built as an academic and personal project to practice real-world backend development concepts such as authentication, authorization, database design, and file management. This project was built in mind to solve the problem of resource sharing in college environment, it allows user to easily upload resources and others to quickly view or download the resource.
+ResourceHub API is a backend application. It is a cloud-native Digital Asset Management (DAM) system. This project was built in mind to solve the problem of resource sharing in college environment, it allows user to easily upload resources and others to quickly view or download the resource.
 
 The system allows users to organize digital resources into hierarchical folders, store files using a cloud storage provider, and interact with resources through ratings and bookmarks.
 
@@ -192,15 +192,8 @@ jwt.secret=your_jwt_secret
 
 ---
 
-## Project Scope & Limitations
-
-* This project focuses on backend functionality only
-* Frontend is not included in this repository
-* Designed primarily for learning and demonstration purposes
-
----
-
 ## Author
 
 **Ahmad Umar Usmani**
 *  GitHub: [doesDeveloper](https://github.com/doesDeveloper)
+*  Linkedin: [Ahmad Umar Usmani](https://www.linkedin.com/in/ahmad-umar-985201343/)
