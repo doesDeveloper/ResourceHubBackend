@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://springdoc.org)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)](https://spring.io/projects/spring-boot)
 
-ResourceHub API is a backend application. It is a cloud-native Digital Asset Management (DAM) system. This project was built in mind to solve the problem of resource sharing in college environment, it allows user to easily upload resources and others to quickly view or download the resource.
+ResourceHub API is a cloud-native Digital Asset Management (DAM) backend application. This project was built in mind to solve the problem of resource sharing in college environment, it allows user to easily upload resources and others to quickly view or download the resource.
 
 The system allows users to organize digital resources into hierarchical folders, store files using a cloud storage provider, and interact with resources through ratings and bookmarks.
 
