@@ -1,6 +1,7 @@
 HELP.md
 .gradle
 build/
+.history/
 pdf_uploads/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
