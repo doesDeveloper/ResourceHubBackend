@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.nio.charset.MalformedInputException;
 import java.util.List;
 
 @Component
@@ -55,11 +55,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
             chain.doFilter(request, response);
         } catch (ExpiredJwtException ex) {
-            objectMapper.writeValue(response.getWriter(), exceptionHandler.handleJWTExpired(ex));
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            objectMapper.writeValue(response.getWriter(), exceptionHandler.handleJWTExpired(ex).getBody());
         } catch (MalformedJwtException ex) {
-            objectMapper.writeValue(response.getWriter(), exceptionHandler.handleMalformedJWT(ex));
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            objectMapper.writeValue(response.getWriter(), exceptionHandler.handleMalformedJWT(ex).getBody());
         } catch (Exception ex) {
-            objectMapper.writeValue(response.getWriter(), exceptionHandler.handleAllUncaughtException(ex, request));
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            objectMapper.writeValue(response.getWriter(), exceptionHandler.handleAllUncaughtException(ex, request).getBody());
         }
     }
 }
