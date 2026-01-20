@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -135,6 +136,7 @@ public class ResourceService {
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
     public FileDTO createFile(MultipartFile file, FileUploadDTO fileUploadDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!isAuthenticated(auth)) throw new ForbiddenException("creation", "file");
@@ -162,12 +164,10 @@ public class ResourceService {
                 .parentUuid(fileUploadDTO.getParentUUID())
                 .build();
         resource = resourceRepository.save(resource);
-        String url = fileStorageService.storeFile(file, resource.getUuid().toString());
-        log.info("File with uuid {} has file path {}.", resource.getUuid(), url);
         FileMetadata fileMetadata = FileMetadata.builder()
                 .uuid(resource.getUuid())
                 .description(fileUploadDTO.getDescription())
-                .filePath(url)
+                .filePath("")
                 .author(fileUploadDTO.getAuthor())
                 .uploadedBy(auth.getName())
                 .verified(false)
@@ -175,6 +175,10 @@ public class ResourceService {
                 .rates(Collections.emptyMap())
                 .build();
 
+        fileMetadataRepository.save(fileMetadata);
+        String url = fileStorageService.storeFile(file, resource.getUuid().toString());
+        fileMetadata.setFilePath(url);
+        log.info("File with uuid {} has file path {}.", resource.getUuid(), url);
         fileMetadataRepository.save(fileMetadata);
         return FileDTO.from(resource, fileMetadata);
     }
